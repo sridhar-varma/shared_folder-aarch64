@@ -1,0 +1,32 @@
+#on host 
+
+qemu-system-aarch64 \
+-machine virt \
+-cpu max \
+-smp 4 \
+-m 4G \
+-initrd initrd.img-6.1.0-15-arm64 \
+-kernel vmlinuz-6.1.0-15-arm64 \
+-drive file=debian.qcow,if=none,id=hackd \
+-device virtio-scsi-device \
+-device scsi-hd,drive=hackd \
+-device e1000,netdev=hacknd0 \
+-netdev tap,id=hacknd0,ifname=tap0,script=no,downscript=no \
+-virtfs local,path=/path/to/host/folder,mount_tag=shared_folder,security_model=mapped-xattr \
+-nographic
+
+
+#Replace /path/to/host/folder with the path to the folder on your host machine that you want to share.
+
+#Boot up your Debian AArch64 virtual machine using the QEMU command.
+
+#Now,inside VM
+
+sudo mkdir /mnt/shared_folder
+sudo mount -t 9p -o trans=virtio shared_folder /mnt/shared_folder
+cp /mnt/shared_folder/example.txt /path/to/target/directory
+
+#Replace /path/to/target/directory with the path to the directory where you want to copy the file within the virtual machine.
+
+sudo umount /mnt/shared_folder
+
